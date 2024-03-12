@@ -22,7 +22,7 @@ example {a : ℝ} (h : 1 < a) : a < a * a := by
 theorem convergesTo_const (a : ℝ) : ConvergesTo (fun x : ℕ ↦ a) a := by
   intro ε εpos
   use 0
-  intro n nge
+  intro n _
   rw [sub_self, abs_zero]
   apply εpos
 
@@ -35,7 +35,27 @@ theorem convergesTo_add {s t : ℕ → ℝ} {a b : ℝ}
   rcases cs (ε / 2) ε2pos with ⟨Ns, hs⟩
   rcases ct (ε / 2) ε2pos with ⟨Nt, ht⟩
   use max Ns Nt
-  sorry
+  have ε2plus : ε / 2 + ε / 2 = ε := by norm_num
+  intro n hn
+  have hd : |s n + t n - (a + b)| = |(s n - a) + (t n - b)| := by congr; ring
+  rw [hd]
+
+  have he: ε / 2 + ε / 2 > 0 := by exact add_pos ε2pos ε2pos
+
+  have hf : |s n - a + (t n - b)| < |ε / 2 + ε / 2| := by
+    apply lt_of_le_of_lt
+    . apply abs_add
+    . rw [abs_of_pos he]
+      apply add_lt_add
+      . apply hs
+        . exact le_of_max_le_left hn
+      . apply ht
+        . exact le_of_max_le_right hn
+
+  apply lt_of_lt_of_le
+  . apply hf
+  . rw [ε2plus]
+    rw [abs_of_pos εpos]
 
 theorem convergesTo_mul_const {s : ℕ → ℝ} {a : ℝ} (c : ℝ) (cs : ConvergesTo s a) :
     ConvergesTo (fun n ↦ c * s n) (c * a) := by
@@ -46,13 +66,55 @@ theorem convergesTo_mul_const {s : ℕ → ℝ} {a : ℝ} (c : ℝ) (cs : Conver
     rw [h]
     ring
   have acpos : 0 < |c| := abs_pos.mpr h
-  sorry
+
+  intro ε εpos
+  dsimp
+  have cεpos : (1 / |c|) * ε > 0 := by 
+    apply mul_pos_iff.mpr
+    . left
+      constructor
+      . apply div_pos
+        . norm_num
+        . exact acpos
+      . exact εpos
+
+  have he : ((1 / |c|) * ε * |c| = ε) := by
+    rw [mul_comm]
+    rw [← mul_assoc]
+    rw [mul_one_div]
+    rw [div_self]
+    . ring
+    . exact abs_ne_zero.mpr h
+    
+    
+
+  rcases cs ((1 / |c|) * ε) cεpos with ⟨Ns, hs⟩
+  use Ns
+  intro n hn
+  rw [sub_eq_add_neg]
+  rw [← mul_neg]
+  rw [← mul_add]
+  rw [← sub_eq_add_neg]
+  rw [abs_mul]
+  rw [mul_comm] at he
+  rw [← he]
+  apply mul_lt_mul'
+  . exact le_refl |c|
+  . apply hs
+    . exact hn
+  . exact abs_nonneg (s n - a)
+  . exact acpos
+    
 
 theorem exists_abs_le_of_convergesTo {s : ℕ → ℝ} {a : ℝ} (cs : ConvergesTo s a) :
     ∃ N b, ∀ n, N ≤ n → |s n| < b := by
   rcases cs 1 zero_lt_one with ⟨N, h⟩
   use N, |a| + 1
-  sorry
+  intro n hn
+  
+  match le_or_gt 0 |s n| with
+  | Or.inr hd => sorry
+  | Or.inl hd => sorry
 
 theorem aux {s t : ℕ → ℝ} {a : ℝ} (cs : ConvergesTo s a) (ct : ConvergesTo t 0) :
     ConvergesTo (fun n ↦ s n * t n) 0 := by

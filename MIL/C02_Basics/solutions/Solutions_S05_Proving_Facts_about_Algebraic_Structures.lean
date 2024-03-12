@@ -124,7 +124,7 @@ section
 variable {X : Type*} [MetricSpace X]
 variable (x y z : X)
 
-example (x y : X) : 0 ≤ dist x y :=by
+example (x y : X) : 0 ≤ dist x y := by
   have : 0 ≤ dist x y + dist y x := by
     rw [← dist_self x]
     apply dist_triangle
