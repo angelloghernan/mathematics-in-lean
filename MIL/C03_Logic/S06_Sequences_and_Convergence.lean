@@ -135,12 +135,9 @@ theorem exists_abs_le_of_convergesTo {s : ℕ → ℝ} {a : ℝ} (cs : Converges
           rw [neg_sub]
           linarith
           
-          
       apply lt_of_le_of_lt hf
       . apply h
         apply hn
-      
-
       
 
     | Or.inr hd =>
@@ -149,7 +146,15 @@ theorem exists_abs_le_of_convergesTo {s : ℕ → ℝ} {a : ℝ} (cs : Converges
       match le_or_gt 0 (s n) with
       | Or.inl hg => 
         rw [abs_of_nonneg hg]
-        sorry
+        have hh : s n - a > 0 := by linarith
+        have hi : s n + a < s n - a := by linarith
+        have hj : s n - a = |s n - a| := by exact (abs_of_pos hh).symm
+        apply lt_of_lt_of_le
+        . apply hi
+        . rw [hj]
+          apply le_of_lt
+          apply h
+          exact hn
         
       | Or.inr hg => 
         rw [abs_of_neg hg]
