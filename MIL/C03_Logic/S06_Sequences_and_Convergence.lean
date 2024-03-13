@@ -105,16 +105,68 @@ theorem convergesTo_mul_const {s : ℕ → ℝ} {a : ℝ} (c : ℝ) (cs : Conver
   . exact abs_nonneg (s n - a)
   . exact acpos
     
-
 theorem exists_abs_le_of_convergesTo {s : ℕ → ℝ} {a : ℝ} (cs : ConvergesTo s a) :
     ∃ N b, ∀ n, N ≤ n → |s n| < b := by
   rcases cs 1 zero_lt_one with ⟨N, h⟩
   use N, |a| + 1
   intro n hn
+
+  have he: |s n| - |a| < 1 := by
+    match le_or_gt 0 a with
+    | Or.inl hd =>
+      have hf: |s n| - |a| ≤ |s n - a| := by 
+        match le_or_gt 0 (s n) with
+        | Or.inl hg => 
+          rw [abs_of_nonneg, abs_of_nonneg]
+          . exact le_abs_self (s n - a)
+          . exact hd
+          . exact hg
+        | Or.inr hg => 
+          rw [abs_of_nonneg hd]
+          rw [abs_of_neg hg]
+          have hl : s n - a < 0 := by 
+            match eq_or_lt_of_le hd with
+            | Or.inl hh =>
+              rw [← hh]
+              rw [sub_zero]
+              exact hg
+            | Or.inr hh => linarith
+          rw [abs_of_neg hl]
+          rw [neg_sub]
+          linarith
+          
+          
+      apply lt_of_le_of_lt hf
+      . apply h
+        apply hn
+      
+
+      
+
+    | Or.inr hd =>
+      rw [abs_of_neg hd]
+      rw [sub_neg_eq_add]
+      match le_or_gt 0 (s n) with
+      | Or.inl hg => 
+        rw [abs_of_nonneg hg]
+        sorry
+        
+      | Or.inr hg => 
+        rw [abs_of_neg hg]
+        match le_or_gt 0 (s n - a) with
+        | Or.inl hh => 
+          linarith
+        | Or.inr hh => 
+          rw [← neg_neg a]
+          rw [← neg_add (s n) (-a)]
+          rw [← sub_eq_add_neg (s n) (a)]
+          rw [← abs_of_neg]
+          . apply h
+            . exact hn
+          . exact hh
+
+  linarith
   
-  match le_or_gt 0 |s n| with
-  | Or.inr hd => sorry
-  | Or.inl hd => sorry
 
 theorem aux {s t : ℕ → ℝ} {a : ℝ} (cs : ConvergesTo s a) (ct : ConvergesTo t 0) :
     ConvergesTo (fun n ↦ s n * t n) 0 := by
