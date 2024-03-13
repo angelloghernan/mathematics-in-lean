@@ -180,8 +180,28 @@ theorem aux {s t : ℕ → ℝ} {a : ℝ} (cs : ConvergesTo s a) (ct : Converges
   rcases exists_abs_le_of_convergesTo cs with ⟨N₀, B, h₀⟩
   have Bpos : 0 < B := lt_of_le_of_lt (abs_nonneg _) (h₀ N₀ (le_refl _))
   have pos₀ : ε / B > 0 := div_pos εpos Bpos
+  have hε : ε = ε / B * B := by 
+    symm
+    apply div_mul_cancel
+    exact ne_of_gt Bpos
   rcases ct _ pos₀ with ⟨N₁, h₁⟩
-  sorry
+  use max N₀ N₁
+  intro n mn
+  have lt_h : |s n| * |t n| < ε / B * B := by
+    rw [mul_comm]
+    apply mul_lt_mul''
+    . rw [← sub_zero (t n)]
+      apply h₁
+      exact le_of_max_le_right mn
+    . apply h₀
+      exact le_of_max_le_left mn
+    . apply abs_nonneg
+    . apply abs_nonneg
+
+  rw [hε]
+  rw [sub_zero]
+  rw [abs_mul]
+  exact lt_h
 
 theorem convergesTo_mul {s t : ℕ → ℝ} {a b : ℝ}
       (cs : ConvergesTo s a) (ct : ConvergesTo t b) :
