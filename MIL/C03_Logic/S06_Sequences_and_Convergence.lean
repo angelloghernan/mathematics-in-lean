@@ -219,7 +219,15 @@ theorem convergesTo_unique {s : ℕ → ℝ} {a b : ℝ}
       (sa : ConvergesTo s a) (sb : ConvergesTo s b) :
     a = b := by
   by_contra abne
-  have : |a - b| > 0 := by sorry
+  have : |a - b| > 0 := by 
+    apply gt_iff_lt.mpr
+    apply lt_of_not_ge
+    intro hd
+    apply absurd abne
+    push_neg
+    apply sub_eq_zero.mp
+    exact abs_nonpos_iff.mp hd
+
   let ε := |a - b| / 2
   have εpos : ε > 0 := by
     change |a - b| / 2 > 0
@@ -227,9 +235,30 @@ theorem convergesTo_unique {s : ℕ → ℝ} {a b : ℝ}
   rcases sa ε εpos with ⟨Na, hNa⟩
   rcases sb ε εpos with ⟨Nb, hNb⟩
   let N := max Na Nb
-  have absa : |s N - a| < ε := by sorry
-  have absb : |s N - b| < ε := by sorry
-  have : |a - b| < |a - b| := by sorry
+
+  have twoε : |a - b| = 2 * ε := by
+    change |a - b| = 2 * (|a - b| / 2)
+    ring
+
+  have : |a - b| < |a - b| := by
+    nth_rewrite 2 [twoε]
+    have he : |a - b| = |(-(s N - a)) + (s N - b)| := by
+      congr
+      ring
+    have hf : 2 * ε = ε + ε := by ring
+    rw [he]
+    rw [hf]
+    apply lt_of_le_of_lt
+    . apply abs_add
+    . rw [abs_neg]
+      apply add_lt_add
+      . apply hNa
+        exact Nat.le_max_left Na Nb
+      . apply hNb
+        exact Nat.le_max_right Na Nb
+
+
+    
   exact lt_irrefl _ this
 
 section
