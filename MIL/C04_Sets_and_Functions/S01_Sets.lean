@@ -183,8 +183,25 @@ example (x : ℕ) (h : x ∈ (∅ : Set ℕ)) : False :=
 example (x : ℕ) : x ∈ (univ : Set ℕ) :=
   trivial
 
+#check Nat.Prime.eq_two_or_odd
+#check Nat.even_iff
+
 example : { n | Nat.Prime n } ∩ { n | n > 2 } ⊆ { n | ¬Even n } := by
-  sorry
+  intro x
+  rintro ⟨ha, hb⟩
+  simp at ha
+  simp at hb
+  simp
+  intro h
+  apply absurd Nat.Prime.eq_two_or_odd
+  . push_neg
+    constructor
+    . apply ha
+    . constructor
+      . exact Nat.ne_of_gt hb
+      . have : x % 2 = 0 := by exact Nat.even_iff.mp h
+        linarith
+
 
 #print Prime
 
