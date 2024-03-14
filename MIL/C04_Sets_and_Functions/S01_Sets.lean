@@ -285,7 +285,22 @@ example : (⋂ i, A i ∩ B i) = (⋂ i, A i) ∩ ⋂ i, B i := by
 
 
 example : (s ∪ ⋂ i, A i) = ⋂ i, A i ∪ s := by
-  sorry
+  ext x
+  simp
+  constructor
+  . intro h
+    intro i
+    rcases h with h' | h'
+    . right; exact h'
+    . left; apply h'
+  . intro h
+    by_cases ha : x ∈ s
+    . left; exact ha
+    . right
+      intro i
+      rcases h i with h' | _
+      . exact h'
+      . contradiction
 
 def primes : Set ℕ :=
   { x | Nat.Prime x }
@@ -306,7 +321,12 @@ example : (⋂ p ∈ primes, { x | ¬p ∣ x }) ⊆ { x | x = 1 } := by
   apply Nat.exists_prime_and_dvd
 
 example : (⋃ p ∈ primes, { x | x ≤ p }) = univ := by
-  sorry
+  apply eq_univ_of_forall
+  intro x
+  simp
+  rcases Nat.exists_infinite_primes x with ⟨p, ltp, pp⟩
+  use p
+  exact ⟨pp, ltp⟩
 
 end
 
