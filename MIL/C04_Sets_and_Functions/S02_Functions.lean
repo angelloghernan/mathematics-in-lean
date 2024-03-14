@@ -34,25 +34,70 @@ example : s ⊆ f ⁻¹' (f '' s) := by
   use x, xs
 
 example : f '' s ⊆ v ↔ s ⊆ f ⁻¹' v := by
-  sorry
+  constructor
+  . intro h x
+    intro h'
+    apply h
+    apply Exists.intro x
+    use h'
+    
+  . intro h x h'
+    rcases h' with ⟨y, hb, hc⟩
+    apply mem_of_eq_of_mem
+    . exact hc.symm
+    . exact h hb
+      
 
 example (h : Injective f) : f ⁻¹' (f '' s) ⊆ s := by
-  sorry
+  rintro x ⟨y, hy⟩
+  rw [Injective] at h
+  apply mem_of_eq_of_mem
+  . exact h hy.right.symm
+  . exact hy.left
 
 example : f '' (f ⁻¹' u) ⊆ u := by
-  sorry
+  rintro x ⟨y, h, h'⟩
+  rw [← h']
+  exact h
 
 example (h : Surjective f) : u ⊆ f '' (f ⁻¹' u) := by
-  sorry
+  intro x ha
+  rcases h x with ⟨y, hy⟩
+  use y
+  constructor
+  . simp
+    rw [← hy] at ha
+    exact ha
+  . exact hy
 
 example (h : s ⊆ t) : f '' s ⊆ f '' t := by
-  sorry
+  intro x hx
+  simp
+  simp at hx
+  rcases hx with ⟨y, hy⟩
+  use y
+  constructor
+  . exact h hy.left
+  . exact hy.right
 
 example (h : u ⊆ v) : f ⁻¹' u ⊆ f ⁻¹' v := by
-  sorry
+  intro x hx
+  simp at hx
+  simp
+  exact h hx
 
 example : f ⁻¹' (u ∪ v) = f ⁻¹' u ∪ f ⁻¹' v := by
-  sorry
+  repeat rw [preimage]
+  ext x
+  constructor
+  . intro hx
+    simp
+    simp at hx
+    assumption
+  . intro hx
+    simp at hx
+    simp
+    assumption
 
 example : f '' (s ∩ t) ⊆ f '' s ∩ f '' t := by
   sorry
