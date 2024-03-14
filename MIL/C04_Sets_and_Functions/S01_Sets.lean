@@ -45,7 +45,12 @@ example : s ∩ (t ∪ u) ⊆ s ∩ t ∪ s ∩ u := by
   . right; exact ⟨xs, xu⟩
 
 example : s ∩ t ∪ s ∩ u ⊆ s ∩ (t ∪ u) := by
-  sorry
+  rintro x (⟨xs, xt⟩ | ⟨xs', xt'⟩)
+  . rw [inter_def]
+    exact ⟨xs, Or.inl xt⟩
+  . rw [inter_def]
+    exact ⟨xs', Or.inr xt'⟩
+    
 example : (s \ t) \ u ⊆ s \ (t ∪ u) := by
   intro x xstu
   have xs : x ∈ s := xstu.1.1
@@ -65,7 +70,14 @@ example : (s \ t) \ u ⊆ s \ (t ∪ u) := by
   rintro (xt | xu) <;> contradiction
 
 example : s \ (t ∪ u) ⊆ (s \ t) \ u := by
-  sorry
+  rintro x ⟨xs, xntu⟩
+  constructor
+  . use xs
+    intro xt
+    exact xntu (Or.inl xt)
+  . intro xu
+    exact xntu (Or.inr xu)
+
 example : s ∩ t = t ∩ s := by
   ext x
   simp only [mem_inter_iff]
@@ -84,18 +96,74 @@ example : s ∩ t = t ∩ s := by
   . rintro x ⟨xt, xs⟩; exact ⟨xs, xt⟩
 
 example : s ∩ t = t ∩ s :=
-    Subset.antisymm sorry sorry
+    Subset.antisymm (fun _ ⟨xs, xt⟩ ↦ ⟨xt, xs⟩) 
+                    (fun _ ⟨xt, xs⟩ ↦ ⟨xs, xt⟩)
+
 example : s ∩ (s ∪ t) = s := by
-  sorry
+  ext x
+  constructor
+  . rintro ⟨xs, _⟩
+    exact xs
+  . intro xs
+    use xs
+    exact Or.inl xs
 
 example : s ∪ s ∩ t = s := by
-  sorry
+  ext x
+  constructor
+  . rintro (st | ⟨su, _⟩)
+    . exact st
+    . exact su
+  . intro h
+    exact Or.inl h
 
 example : s \ t ∪ t = s ∪ t := by
-  sorry
+  ext x
+  constructor
+  . rintro (⟨snt, _⟩ | su)
+    . exact Or.inl snt
+    . exact Or.inr su
+    
+  . by_cases h : x ∈ t
+    . rintro (_ | _)
+      . right
+        exact h
+      . right
+        exact h
+    . rintro (st | su)
+      . left
+        exact ⟨st, h⟩
+      . contradiction
+        
 
 example : s \ t ∪ t \ s = (s ∪ t) \ (s ∩ t) := by
-  sorry
+  ext x
+  constructor
+  . rintro (⟨sts, stt⟩ | ⟨tst, tss⟩)
+    . apply mem_diff_of_mem
+      . left; exact sts
+      . rintro ⟨ss, tt⟩
+        contradiction
+        
+    . apply mem_diff_of_mem
+      . right; exact tst
+      . rintro ⟨ss, tt⟩
+        contradiction
+
+  . rintro ⟨(sss | sst), stt⟩
+    by_cases h : x ∈ t
+    . right
+      apply mem_diff_of_mem
+      . exact h
+      . intro a
+        exact stt ⟨a, h⟩
+
+    . left
+      exact mem_diff_of_mem sss h
+    . right
+      use sst
+      intro h
+      exact stt ⟨h, sst⟩
 
 def evens : Set ℕ :=
   { n | Even n }
