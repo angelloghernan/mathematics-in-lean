@@ -87,7 +87,6 @@ example (h : u ⊆ v) : f ⁻¹' u ⊆ f ⁻¹' v := by
   exact h hx
 
 example : f ⁻¹' (u ∪ v) = f ⁻¹' u ∪ f ⁻¹' v := by
-  repeat rw [preimage]
   ext x
   constructor
   . intro hx
@@ -100,21 +99,71 @@ example : f ⁻¹' (u ∪ v) = f ⁻¹' u ∪ f ⁻¹' v := by
     assumption
 
 example : f '' (s ∩ t) ⊆ f '' s ∩ f '' t := by
-  sorry
+  intro x ⟨y, hy⟩
+  simp at hy
+  simp
+  constructor
+  . use y
+    exact ⟨hy.left.left, hy.right⟩
+  . use y
+    exact ⟨hy.left.right, hy.right⟩
 
 example (h : Injective f) : f '' s ∩ f '' t ⊆ f '' (s ∩ t) := by
-  sorry
+  intro x ⟨⟨y, hy⟩, ⟨z, hz⟩⟩
+  simp
+  have : y = z := by 
+    apply h
+    rw [hy.right, hz.right]
+  use y
+  constructor
+  . nth_rewrite 2 [this]
+    exact ⟨hy.left, hz.left⟩
+  . exact hy.right
 
 example : f '' s \ f '' t ⊆ f '' (s \ t) := by
-  sorry
+  intro x ⟨⟨y, hy⟩, ht⟩
+  simp
+  use y
+  constructor
+  . constructor
+    . exact hy.left
+    . intro hy2
+      apply absurd ht
+      simp
+      use y
+      exact ⟨hy2, hy.right⟩
+  . exact hy.right
 
 example : f ⁻¹' u \ f ⁻¹' v ⊆ f ⁻¹' (u \ v) := by
-  sorry
+  rintro x ⟨ha, hb⟩
+  simp at ha
+  simp at hb
+  simp
+  exact ⟨ha, hb⟩
 
 example : f '' s ∩ v = f '' (s ∩ f ⁻¹' v) := by
-  sorry
+  ext x
+  constructor
+  . rintro ⟨h, hx⟩
+    simp at h
+    simp
+    rcases h with ⟨y, hy⟩
+    use y
+    constructor
+    . rw [hy.right]
+      exact ⟨hy.left, hx⟩
+    . exact hy.right
+  . rintro ⟨y, ⟨⟨ha, hb⟩, hc⟩⟩
+    simp at hb
+    simp
+    constructor
+    . use y
+    . rw [hc] at hb
+      assumption
+
 
 example : f '' (s ∩ f ⁻¹' u) ⊆ f '' s ∩ u := by
+  
   sorry
 
 example : s ∩ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∩ u) := by
