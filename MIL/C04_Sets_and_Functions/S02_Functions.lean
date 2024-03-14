@@ -273,16 +273,58 @@ example : range exp = { y | y > 0 } := by
   rw [exp_log ypos]
 
 example : InjOn sqrt { x | x ≥ 0 } := by
-  sorry
+  intro x xnneg y ynneg sqrteq
+  simp at xnneg
+  simp at ynneg
+  rw [← sqrt_sq xnneg]
+  rw [← sqrt_sq ynneg]
+  repeat rw [pow_two]
+  rw [sqrt_mul xnneg x]
+  rw [sqrt_mul ynneg y]
+  rw [sqrteq]
 
 example : InjOn (fun x ↦ x ^ 2) { x : ℝ | x ≥ 0 } := by
-  sorry
+  rw [InjOn]
+  intro x xnneg y ynneg sqeq
+  repeat rw [pow_two] at sqeq
+  have : sqrt (x * x) = sqrt (y * y) := by rw [sqeq]
+  repeat rw [← pow_two] at this
+  rw [sqrt_sq xnneg] at this
+  rw [sqrt_sq ynneg] at this
+  assumption
 
 example : sqrt '' { x | x ≥ 0 } = { y | y ≥ 0 } := by
-  sorry
+  ext x
+  constructor
+  . intro hx
+    simp at hx
+    simp
+    rcases hx with ⟨y, hy⟩
+    have : 0 ≤ sqrt y := by exact sqrt_nonneg y
+    rw [hy.right] at this
+    exact this
+
+  . intro hx
+    simp at hx
+    simp
+    use x ^ 2
+    constructor
+    . exact sq_nonneg x
+    . exact sqrt_sq hx
 
 example : (range fun x ↦ x ^ 2) = { y : ℝ | y ≥ 0 } := by
-  sorry
+  rw [range]
+  ext x
+  constructor
+  . simp
+    intro y
+    intro hy
+    rw [← hy]
+    exact sq_nonneg y
+  . simp
+    intro hx
+    use sqrt x
+    exact sq_sqrt hx
 
 end
 
