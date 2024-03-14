@@ -237,10 +237,16 @@ section
 variable (ssubt : s ⊆ t)
 
 example (h₀ : ∀ x ∈ t, ¬Even x) (h₁ : ∀ x ∈ t, Prime x) : ∀ x ∈ s, ¬Even x ∧ Prime x := by
-  sorry
+  intro x xs
+  have : x ∈ t := by exact ssubt xs
+  constructor
+  . exact h₀ x this
+  . exact h₁ x this
 
 example (h : ∃ x ∈ s, ¬Even x ∧ Prime x) : ∃ x ∈ t, Prime x := by
-  sorry
+  rcases h with ⟨x, xs, _, prime_x⟩
+  have : x ∈ t := by exact ssubt xs
+  use x
 
 end
 
