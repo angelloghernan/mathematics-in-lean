@@ -161,16 +161,35 @@ example : f '' s ∩ v = f '' (s ∩ f ⁻¹' v) := by
     . rw [hc] at hb
       assumption
 
-
 example : f '' (s ∩ f ⁻¹' u) ⊆ f '' s ∩ u := by
-  
-  sorry
+  rintro x ⟨y, ⟨ha, hb⟩, hc⟩
+  simp
+  constructor
+  . use y
+  . simp at hb
+    rw [hc] at hb
+    assumption 
 
 example : s ∩ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∩ u) := by
-  sorry
+  rintro x ⟨ha, hb⟩
+  simp at hb
+  simp
+  constructor
+  . use x
+  . assumption
 
 example : s ∪ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∪ u) := by
-  sorry
+  repeat rw [preimage]
+  rw [image]
+  rintro x ha
+  rcases ha with h | h
+  . simp
+    left
+    use x
+  . simp
+    simp at h
+    right
+    exact h
 
 variable {I : Type*} (A : I → Set α) (B : I → Set β)
 
