@@ -355,11 +355,35 @@ variable (f : α → β)
 
 open Function
 
-example : Injective f ↔ LeftInverse (inverse f) f :=
-  sorry
+#print LeftInverse
+#print RightInverse
 
-example : Surjective f ↔ RightInverse (inverse f) f :=
-  sorry
+example : Injective f ↔ LeftInverse (inverse f) f := by
+  constructor
+  . intro hi
+    intro x
+    apply hi
+    apply inverse_spec
+    use x
+  . rw [LeftInverse]
+    rw [Injective]
+    intro h x y hxy
+    rw [← h x]
+    rw [← h y]
+    rw [hxy]
+
+example : Surjective f ↔ RightInverse (inverse f) f := by
+  rw [Surjective]
+  rw [Function.RightInverse]
+  constructor
+  . intro h x
+    apply inverse_spec
+    exact h x
+  . rw [LeftInverse]
+    intro h x
+    use (inverse f x)
+    exact h x 
+
 
 end
 
@@ -375,10 +399,11 @@ theorem Cantor : ∀ f : α → Set α, ¬Surjective f := by
     intro h'
     have : j ∉ f j := by rwa [h] at h'
     contradiction
-  have h₂ : j ∈ S
-  sorry
-  have h₃ : j ∉ S
-  sorry
+  have h₂ : j ∈ S := by exact h₁
+    
+  have h₃ : j ∉ S := by
+    rw [h] at h₁
+    exact h₁
   contradiction
 
 -- COMMENTS: TODO: improve this
