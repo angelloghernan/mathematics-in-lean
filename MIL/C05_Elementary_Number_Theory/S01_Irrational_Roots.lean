@@ -80,7 +80,41 @@ example {m n : ℕ} (coprime_mn : m.Coprime n) : m ^ 2 ≠ 2 * n ^ 2 := by
   norm_num at this
 
 example {m n p : ℕ} (coprime_mn : m.Coprime n) (prime_p : p.Prime) : m ^ 2 ≠ p * n ^ 2 := by
-  sorry
+  intro contr
+  have p_div : p ∣m := by
+    symm at contr
+    have : p ∣(m ^ 2) := by exact Dvd.intro (n ^ 2) contr
+    exact Nat.Prime.dvd_of_dvd_pow prime_p this
+
+  have two_ge : 2 ≤ p := by exact Nat.Prime.two_le prime_p
+
+
+  obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp p_div
+  have : p * (p * k ^ 2) = p * n ^ 2 := by
+    rw [← contr]
+    rw [meq]
+    ring
+  have : p * k ^ 2 = n ^ 2 := by
+    simp at this
+    rcases this with h | h
+    . exact h
+    . linarith
+
+  have : p ∣ n := by
+    have : p ∣ n ^ 2 := by exact Dvd.intro (k ^ 2) this
+    exact Nat.Prime.dvd_of_dvd_pow prime_p this
+
+  have : p ∣ m.gcd n := by
+    exact Nat.dvd_gcd p_div this
+
+  have : p ∣ 1 := by
+    rw [Nat.Coprime] at coprime_mn
+    rw [coprime_mn] at this
+    exact this
+
+  norm_num at this
+  linarith
+
 #check Nat.factors
 #check Nat.prime_of_mem_factors
 #check Nat.prod_factors
