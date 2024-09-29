@@ -120,8 +120,16 @@ instance instCommRing : CommRing gaussInt where
   mul_comm := by
     intros
     ext <;> simp <;> ring
-  zero_mul := sorry
-  mul_zero := sorry
+  zero_mul := by
+    intro a
+    rw [mul_def]
+    simp
+    rfl
+  mul_zero := by
+    intro a
+    rw [mul_def]
+    simp
+    rfl
 
 @[simp]
 theorem sub_re (x y : gaussInt) : (x - y).re = x.re - y.re :=
@@ -175,7 +183,26 @@ end Int
 
 theorem sq_add_sq_eq_zero {α : Type*} [LinearOrderedRing α] (x y : α) :
     x ^ 2 + y ^ 2 = 0 ↔ x = 0 ∧ y = 0 := by
-  sorry
+  constructor
+  . intro h
+    contrapose h
+    push_neg at h
+    by_cases h': x = 0
+    . rw [h'] at h
+      simp at h
+      intro h''
+      rw [h'] at h''
+      simp at h''
+      exact h h''
+    . push_neg at h'
+      have g: x^2 > 0 := by exact (sq_pos_iff x).mpr h'
+      have g': y^2 ≥ 0 := by exact sq_nonneg y
+      have : x^2 + y^2 > 0 := by exact add_pos_of_pos_of_nonneg g g'
+      exact ne_of_gt this
+  . intro h
+    rw [h.left, h.right]
+    simp
+
 namespace gaussInt
 
 def norm (x : gaussInt) :=
@@ -183,13 +210,48 @@ def norm (x : gaussInt) :=
 
 @[simp]
 theorem norm_nonneg (x : gaussInt) : 0 ≤ norm x := by
-  sorry
+  rw [norm]
+  apply Int.add_nonneg
+  . exact sq_nonneg x.re
+  . exact sq_nonneg x.im
+
 theorem norm_eq_zero (x : gaussInt) : norm x = 0 ↔ x = 0 := by
-  sorry
+  rw [norm]
+  constructor
+  . intro h
+    rw [zero_def]
+    have : x.re = 0 ∧ x.im = 0 := by exact (sq_add_sq_eq_zero x.re x.im).mp h
+    exact (gaussInt.ext_iff x { re := 0, im := 0 }).mpr this
+  . intro h
+    rw [zero_def] at h
+    rw [h]
+    simp
+
 theorem norm_pos (x : gaussInt) : 0 < norm x ↔ x ≠ 0 := by
-  sorry
+  rw [norm]
+  constructor
+  . intro h
+    rw [zero_def]
+    intro h'
+    have : x = 0 := by exact h'
+    rw [this] at h
+    simp at h
+  . intro h
+    have : norm x ≠ 0 := by
+      intro h'
+      have : x = 0 := by exact (norm_eq_zero x).mp h'
+      contradiction
+    apply lt_of_le_of_ne
+    . apply norm_nonneg
+    . rw [← norm]
+      symm at this
+      exact this
+      
 theorem norm_mul (x y : gaussInt) : norm (x * y) = norm x * norm y := by
-  sorry
+  repeat rw [norm]
+  simp
+  ring
+
 def conj (x : gaussInt) : gaussInt :=
   ⟨x.re, -x.im⟩
 

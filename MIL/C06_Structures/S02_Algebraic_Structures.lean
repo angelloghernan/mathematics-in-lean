@@ -55,6 +55,8 @@ def permGroup {α : Type*} : Group₁ (Equiv.Perm α)
 
 structure AddGroup₁ (α : Type*) where
   (add : α → α → α)
+  (zero : α)
+  (neg : α → α)
   -- fill in the rest
 @[ext]
 structure Point where
@@ -67,11 +69,16 @@ namespace Point
 def add (a b : Point) : Point :=
   ⟨a.x + b.x, a.y + b.y, a.z + b.z⟩
 
-def neg (a : Point) : Point := sorry
+def neg (a : Point) : Point :=
+  ⟨-a.x, -a.y, -a.z⟩
 
-def zero : Point := sorry
+def zero : Point :=
+  ⟨0, 0, 0⟩
 
-def addGroupPoint : AddGroup₁ Point := sorry
+def addGroupPoint : AddGroup₁ Point where
+  add a b := add a b
+  zero := zero
+  neg a := neg a
 
 end Point
 
